@@ -57,6 +57,43 @@ def find_task_name():
         print(f"\033[0;31;40m很遗憾，本次不是完美任务，祝下次好运！\033[0m")
 
 
+# 循环输出任务链的主体
+def main_cycle_task_detect():
+    print("\033c", end="")  # 清屏
+    # 声明全局变量
+    global t, lines, tasklist, tasklistcn, line_number, line_content
+    # 初始化
+    tasklist = []
+    tasklistcn = []
+    # 复制文件
+    try:
+        shutil.copy(log_path, copy_path)
+    except:
+        if choice == '1':  # 单次执行模式手动返回重试
+            print('复制日志文件失败，请重试')
+        elif choice == '2':  # 给自动执行模式的失败调整提示语，并加上重试间隔
+            print('复制日志文件失败，1秒后重试')
+            time.sleep(1)
+        return  # 出错就退出循环
+    # 读取文件
+    with open(copy_path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()  # 按行读取，存入列表
+    # 定位任务链行数
+    line_number = find_line_number(target_string)
+    if line_number == 0:
+        return  # 若无法找到行数则终止循环
+    # 任务链所在行内容赋值给变量
+    line_content = copy_line_to_variable(line_number)
+    if line_content is None:
+        return  # 若无法找到任务链行内容则终止循环
+    line_content = line_content.replace('HiddenResourceCachesCave',
+                                        'HiddenCaveResourceCaches')
+    # 提取任务名,并判断任务链是否完美
+    find_task_name()
+    t -= 1  # 剩余运行次数-1
+    time.sleep(JianGe)  # 等待JianGe秒
+
+
 # 主程序
 if __name__ == '__main__':
     # 获取用户名
@@ -78,66 +115,40 @@ if __name__ == '__main__':
                   '刺杀', '解放营地',
                   '破坏补给', '消灭一定数量的敌人',
                   '消灭一定数量的敌人(地下)', '捕获', '救援']
-    # 完美任务英文（无人机、地上下储藏箱、刺杀、捕获、救援）
+    # 完美任务英文（无人机、地下储藏箱、地上储藏箱、刺杀、捕获、救援）
     goodtask = ['DynamicHijack', 'HiddenCaveResourceCaches',
                 'HiddenResourceCaches', 'DynamicAssassinate',
                 'DynamicCapture', 'DynamicRescue']
-    # 选择运行方式
+    # 菜单循环
     while True:
+        print("\033c", end="")  # 清屏
         print('选择程序运行方式：（输入数字按下回车）')
         print('1 - 运行一次')
         print('2 - 自动运行')
         print('3 - 结束程序')
-        JianGe = 0  # 间隔默认为0
+        JianGe = 0  # 间隔默认为0，除自动执行外，不需要停顿
+        t = 1  # 次数默认为1(意义不大，就是定义一下)
         choice = input()
         if choice == '1':
-            t = 1
-            break
+            main_cycle_task_detect()
+            input('按回车键回到菜单')
         elif choice == '2':
             t = 1145141919  # 简单粗暴的大数字，就是有点臭
             try:
-                JianGe = input('运行间隔时间（单位：秒）直接回车默认1秒\n')  # 询问运行间隔
+                JianGe = input('运行间隔时间（单位：秒）直接回车默认2秒\n'
+                               '(过快可能导致读取和wf写入冲突而使脚本崩溃)\n')  # 询问运行间隔
                 if JianGe == '':
-                    JianGe = 1  # 默认间隔
+                    JianGe = 2  # 默认间隔
                 else:
                     JianGe = int(JianGe)  # 不为空就转为数字
             except ValueError:  # 转换出错时，走这里
                 print('输入错误！3秒后重启')
                 time.sleep(3)  # 3秒后重启
-                print("\033c", end="")  # 清屏
                 continue
-            break
+            while t > 0:
+                main_cycle_task_detect()
         elif choice == '3':
-            t = 0
             break
         else:
             print('输入有误！3秒后重启')
             time.sleep(3)
-        print("\033c", end="")  # 清屏
-
-    # 程序循环部分
-    while t > 0:
-        print("\033c", end="")  # 清屏
-        # 初始化
-        tasklist = []
-        tasklistcn = []
-        # 复制文件
-        shutil.copy(log_path, copy_path)
-        # 读取文件
-        with open(copy_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()  # 按行读取，存入列表
-        # 定位任务链行数
-        line_number = find_line_number(target_string)
-        if line_number == 0:
-            break  # 若无法找到行数则终止程序
-        # 任务链所在行内容赋值给变量
-        line_content = copy_line_to_variable(line_number)
-        if line_content is None:
-            break  # 若无法找到任务链行内容则终止程序
-        line_content = line_content.replace('HiddenResourceCachesCave', 'HiddenCaveResourceCaches')
-        # 提取任务名,并判断任务链是否完美
-        find_task_name()
-        t -= 1  # 剩余运行次数-1
-        time.sleep(JianGe)  # 等待JianGe秒
-    if choice != '3':
-        input('按回车键退出')
