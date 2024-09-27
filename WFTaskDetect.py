@@ -28,7 +28,7 @@ def copy_line_to_variable(filename, line_number):
 
 
 # 获取用户名
-username = os.getlogin()
+username = os.environ["USERNAME"]
 # 复制文件
 shutil.copy(rf'C:\Users\{username}\AppData\Local\Warframe\EE.log', rf'C:\Users\{username}\Desktop\WFTask.txt')
 # 定位内容，输出行数
