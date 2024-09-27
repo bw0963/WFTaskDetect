@@ -19,9 +19,9 @@ def find_line_number(string):
 
 
 # 提取字符串
-def copy_line_to_variable(line_number):
-    if 0 < line_number <= len(lines):
-        content = lines[line_number - 1].strip()  # 减去1是因为列表的索引从0开始，而人的计数习惯是从1开始
+def copy_line_to_variable(linenumber):
+    if 0 < linenumber <= len(lines):
+        content = lines[linenumber - 1].strip()  # 列表的索引从0开始，故减1
         return content
     else:
         return None
@@ -31,13 +31,19 @@ def copy_line_to_variable(line_number):
 def find_task_name():
     goodnum = 0  # 完美任务计数
     for i in range(0, len(taskname)):  # 任务名中循环
-        # 查找任务名在字符串中的位置 元组（任务名，位置）
-        index = line_content.find(taskname[i])
-        if index != -1:
-            if taskname[i] in goodtask:
-                goodnum += 1
-            tasklist.append((taskname[i], index))
-            tasklistcn.append((tasknamecn[i], index))
+        start = 0  # 初始化搜寻开始的位置
+        # 此处循环是为了能在找到任务后，继续往下搜寻第二个同名任务
+        while start < len(line_content):  # 搜寻开始的位置小于长度才继续做
+            # 查找任务名在字符串中的位置 元组（任务名，位置）
+            index = line_content.find(taskname[i], start)  # start控制起始搜寻处，未曾找到过时，应默认为0开始
+            if index != -1:  # 如果找到
+                if taskname[i] in goodtask:  # 判断是否为好任务，计数
+                    goodnum += 1
+                tasklist.append((taskname[i], index))  # 任务名及位置加入列表保存
+                tasklistcn.append((tasknamecn[i], index))
+                start = index + 1  # 找到后，索引+1的位置继续找有无同名任务
+            else:  # 如果没找到
+                break  # 跳出循环，while中止，到for的下一个任务名循环
     # 整理tasklist tasklistcn
     tasklist.sort(key=lambda x: x[1], reverse=False)
     tasklistcn.sort(key=lambda x: x[1], reverse=False)
@@ -51,6 +57,7 @@ def find_task_name():
         print(f"\033[0;31;40m很遗憾，本次不是完美任务，祝下次好运！\033[0m")
 
 
+# 主程序
 if __name__ == '__main__':
     # 获取用户名
     username = os.environ["USERNAME"]
@@ -81,25 +88,37 @@ if __name__ == '__main__':
         print('1 - 运行一次')
         print('2 - 自动运行')
         print('3 - 结束程序')
+        JianGe = 0  # 间隔默认为0
         choice = input()
         if choice == '1':
             t = 1
             break
         elif choice == '2':
             t = 1145141919  # 简单粗暴的大数字，就是有点臭
+            try:
+                JianGe = input('运行间隔时间（单位：秒）直接回车默认1秒\n')  # 询问运行间隔
+                if JianGe == '':
+                    JianGe = 1  # 默认间隔
+                else:
+                    JianGe = int(JianGe)  # 不为空就转为数字
+            except ValueError:  # 转换出错时，走这里
+                print('输入错误！3秒后重启')
+                time.sleep(3)  # 3秒后重启
+                print("\033c", end="")  # 清屏
+                continue
             break
         elif choice == '3':
             t = 0
             break
         else:
-            print('输入有误，3秒后重启')
+            print('输入有误！3秒后重启')
             time.sleep(3)
         print("\033c", end="")  # 清屏
 
     # 程序循环部分
     while t > 0:
-        # 初始化
         print("\033c", end="")  # 清屏
+        # 初始化
         tasklist = []
         tasklistcn = []
         # 复制文件
@@ -118,6 +137,7 @@ if __name__ == '__main__':
         line_content = line_content.replace('HiddenResourceCachesCave', 'HiddenCaveResourceCaches')
         # 提取任务名,并判断任务链是否完美
         find_task_name()
-        t -= 1
-        time.sleep(1)
-    input('按回车键退出')
+        t -= 1  # 剩余运行次数-1
+        time.sleep(JianGe)  # 等待JianGe秒
+    if choice != '3':
+        input('按回车键退出')
