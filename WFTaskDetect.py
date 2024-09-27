@@ -61,7 +61,7 @@ if __name__ == '__main__':
     target_string = r'Script [Info]: EidolonJobBoard.lua: Selected job with jobInfo:'
     # 任务英文（'HiddenResourceCachesCave'替换为'HiddenCaveResourceCaches'以区分）
     taskname = ['DynamicResourceTheft', 'DynamicHijack',
-                'HiddenResourceCachesCave', 'HiddenResourceCaches',
+                'HiddenCaveResourceCaches', 'HiddenResourceCaches',
                 'DynamicAssassinate', 'DynamicDefend',
                 'DynamicSabotage', 'DynamicExterminate',
                 'DynamicCaveExterminate', 'DynamicCapture', 'DynamicRescue']
@@ -99,6 +99,7 @@ if __name__ == '__main__':
     # 程序循环部分
     while t > 0:
         # 初始化
+        print("\033c", end="")  # 清屏
         tasklist = []
         tasklistcn = []
         # 复制文件
