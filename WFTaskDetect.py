@@ -51,18 +51,30 @@ def find_task_name():
     for x in tasklistcn:
         print(f"\033[0;32;40m{x[0]}\033[0m")
     # 判断是否为完美任务
-    if goodnum == 5:
+    if goodnum == len(tasklist):
         print(f"\033[0;32;40m恭喜找到完美任务链！\033[0m")
     else:
         print(f"\033[0;31;40m很遗憾，本次不是完美任务，祝下次好运！\033[0m")
+
+
+def taskname_replace(content):
+    # 待替换文本(希图斯：地下储藏箱；福尔图娜：摧毁无人机)
+    oldtasklist = ['HiddenResourceCachesCave', 'DynamicExterminateDrones']
+    # 替换后文本
+    newtasklist = ['HiddenCaveResourceCaches', 'DynamicDronesExterminate']
+    for i in (0, len(oldtasklist)):  # 循环依次替换
+        content = content.replace(oldtasklist[i - 1], newtasklist[i - 1])
+    return content
 
 
 # 循环输出任务链的主体
 def main_cycle_task_detect():
     print("\033c", end="")  # 清屏
     # 声明全局变量
-    global t, lines, tasklist, tasklistcn, line_number, line_content
+    global t, taskarea, lines, taskname, tasknamecn, goodtask, \
+        tasklist, tasklistcn, line_number, line_content
     # 初始化
+    taskarea = ''
     tasklist = []
     tasklistcn = []
     # 复制文件
@@ -86,8 +98,19 @@ def main_cycle_task_detect():
     line_content = copy_line_to_variable(line_number)
     if line_content is None:
         return  # 若无法找到任务链行内容则终止循环
-    line_content = line_content.replace('HiddenResourceCachesCave',
-                                        'HiddenCaveResourceCaches')
+    # 任务名替换以区分
+    line_content = taskname_replace(line_content)
+    # 判断赏金所属地
+    for area in ['Eidolon', 'Venus', 'InfestedMicroplanet']:
+        if line_content.find(area) != -1:  # 若找到地名关键词
+            taskarea = area
+            exec(f'taskname = taskname_{area}', globals())  # 对应地名的数据赋值待用
+            exec(f'tasknamecn = tasknamecn_{area}', globals())
+            exec(f'goodtask = goodtask_{area}', globals())
+            break  # 找到则退出判断属地循环
+    if taskname == []:  # 为空则说明判断属地失败
+        print('无法判断赏金所在属地（希图斯、福尔图娜、殁世幽都）')
+        return  # 中止循环
     # 提取任务名,并判断任务链是否完美
     find_task_name()
     t -= 1  # 剩余运行次数-1
@@ -103,22 +126,56 @@ if __name__ == '__main__':
     copy_path = rf'C:\Users\{username}\Documents\WFTaskLog.txt'
     # 定位用字符串
     target_string = r'Script [Info]: EidolonJobBoard.lua: Selected job with jobInfo:'
-    # 任务英文（'HiddenResourceCachesCave'替换为'HiddenCaveResourceCaches'以区分）
-    taskname = ['DynamicResourceTheft', 'DynamicHijack',
-                'HiddenCaveResourceCaches', 'HiddenResourceCaches',
-                'DynamicAssassinate', 'DynamicDefend',
-                'DynamicSabotage', 'DynamicExterminate',
-                'DynamicCaveExterminate', 'DynamicCapture', 'DynamicRescue']
-    # 任务中文
-    tasknamecn = ['防御重甲金库', '护送无人机',
-                  '寻找储藏舱(地下)', '寻找储藏舱',
-                  '刺杀', '解放营地',
-                  '破坏补给', '消灭一定数量的敌人',
-                  '消灭一定数量的敌人(地下)', '捕获', '救援']
-    # 完美任务英文（无人机、地下储藏箱、地上储藏箱、刺杀、捕获、救援）
-    goodtask = ['DynamicHijack', 'HiddenCaveResourceCaches',
-                'HiddenResourceCaches', 'DynamicAssassinate',
-                'DynamicCapture', 'DynamicRescue']
+    # 任务英文、任务中文、完美任务英文 初始化
+    taskname = []
+    tasknamecn = []
+    goodtask = []
+    # 希图斯任务英文（'HiddenResourceCachesCave'替换为'HiddenCaveResourceCaches'以区分）
+    taskname_Eidolon = ['DynamicResourceTheft', 'DynamicHijack',
+                        'HiddenCaveResourceCaches', 'HiddenResourceCaches',
+                        'DynamicAssassinate', 'DynamicDefend',
+                        'DynamicSabotage', 'DynamicExterminate',
+                        'DynamicCaveExterminate', 'DynamicCapture', 'DynamicRescue']
+    # 希图斯任务中文
+    tasknamecn_Eidolon = ['防御重甲金库', '护送无人机',
+                          '寻找储藏舱(地下)', '寻找储藏舱',
+                          '刺杀', '解放营地',
+                          '破坏补给', '消灭一定数量的敌人',
+                          '消灭一定数量的敌人(地下)', '捕获', '救援']
+    # 希图斯完美任务英文（无人机、地下储藏箱、地上储藏箱、刺杀、捕获、救援）
+    goodtask_Eidolon = ['DynamicHijack', 'HiddenCaveResourceCaches',
+                        'HiddenResourceCaches', 'DynamicAssassinate',
+                        'DynamicCapture', 'DynamicRescue']
+    # 福尔图娜任务英文（'DynamicExterminateDrones'替换为'DynamicDronesExterminate'以区分）
+    taskname_Venus = ['DynamicBaseSpy', 'DynamicAssassinate',
+                      'DynamicDronesExterminate', 'DynamicExterminate',
+                      'DynamicResourceCapture', 'DynamicExcavation',
+                      'DynamicRecovery', 'DynamicAmbush',
+                      'DynamicDroneDefense', 'DynamicCachesAirDrop']
+    # 福尔图娜任务中文
+    tasknamecn_Venus = ['间谍', '刺杀',
+                        '摧毁无人机', '消灭一定数量的敌人',
+                        '占领储藏箱', '挖掘',
+                        '调查索拉里斯营地', '伏击线圈滚轮',
+                        '停用无人机', '寻找储藏箱']
+    # 福尔图娜完美任务英文（间谍、刺杀、摧毁无人机、寻找储藏箱、消灭一定数量的敌人）
+    goodtask_Venus = ['DynamicBaseSpy', 'DynamicAssassinate',
+                      'DynamicDronesExterminate', 'DynamicCachesAirDrop',
+                      'DynamicExterminate']
+    # 殁世幽都任务英文
+    taskname_InfestedMicroplanet = ['DynamicAssassinate', 'DynamicExterminate',
+                                    'DynamicAreaDefense', 'DynamicPurify',
+                                    'DynamicCorpusSurvivors', 'DynamicGrineerSurvivors',
+                                    'DynamicExcavation', 'DynamicKeyPieces']
+    # 殁世幽都任务中文
+    tasknamecn_InfestedMicroplanet = ['刺杀', '消灭巢囊',
+                                      '防御区域', '萃取样本',
+                                      '帮助Corpus研究员', '和Grineer小队比赛',
+                                      '挖掘', '找到并消灭肿瘤']
+    # 殁世幽都完美任务英文
+    goodtask_InfestedMicroplanet = ['DynamicKeyPieces', 'DynamicCorpusSurvivors',
+                                    'DynamicPurify', 'DynamicAssassinate']
+
     # 菜单循环
     while True:
         print("\033c", end="")  # 清屏
