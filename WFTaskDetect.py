@@ -62,8 +62,8 @@ def taskname_replace(content):
     oldtasklist = ['HiddenResourceCachesCave', 'DynamicExterminateDrones']
     # 替换后文本
     newtasklist = ['HiddenCaveResourceCaches', 'DynamicDronesExterminate']
-    for i in (0, len(oldtasklist)):  # 循环依次替换
-        content = content.replace(oldtasklist[i - 1], newtasklist[i - 1])
+    for i in range(0, len(oldtasklist)):  # 循环依次替换
+        content = content.replace(oldtasklist[i], newtasklist[i])
     return content
 
 
