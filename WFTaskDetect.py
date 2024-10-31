@@ -10,11 +10,10 @@ def find_line_number(string):
     for i in range(len(lines) - 1, 0, -1):  # 倒序循环行
         if string in lines[i]:
             number = i + 1  # 定位用字符串所在行数
-            # print(f"'{target_string}'出现在第{number}行")  # 调试用输出
             number += 2  # 加2以定位到任务链所在行
             break  # 找到就跳出寻找循环
     if number == 0:
-        print(f"未在文件中找到'{target_string}'")
+        print(f"未在文件中找到'{target_string[ModeChoice - 1]}'")
     return number
 
 
@@ -51,10 +50,11 @@ def find_task_name():
     for x in tasklistcn:
         print(f"\033[0;32;40m{x[0]}\033[0m")
     # 判断是否为完美任务
-    if goodnum == len(tasklist):
-        print(f"\033[0;32;40m恭喜找到完美任务链！\033[0m")
-    else:
-        print(f"\033[0;31;40m很遗憾，本次不是完美任务，祝下次好运！\033[0m")
+    if ModeChoice == 1:  # 平原赏金模式（双衍王境暂不需要）
+        if goodnum == len(tasklist):
+            print(f"\033[0;32;40m恭喜找到完美任务链！\033[0m")
+        else:
+            print(f"\033[0;31;40m很遗憾，本次不是完美任务，祝下次好运！\033[0m")
 
 
 def taskname_replace(content):
@@ -91,7 +91,7 @@ def main_cycle_task_detect():
     with open(copy_path, 'r', encoding='utf-8') as file:
         lines = file.readlines()  # 按行读取，存入列表
     # 定位任务链行数
-    line_number = find_line_number(target_string)
+    line_number = find_line_number(target_string[ModeChoice - 1])
     if line_number == 0:
         return  # 若无法找到行数则终止循环
     # 任务链所在行内容赋值给变量
@@ -101,7 +101,7 @@ def main_cycle_task_detect():
     # 任务名替换以区分
     line_content = taskname_replace(line_content)
     # 判断赏金所属地
-    for area in ['Eidolon', 'Venus', 'InfestedMicroplanet']:
+    for area in ['Eidolon', 'Venus', 'InfestedMicroplanet', 'Duviri']:
         if line_content.find(area) != -1:  # 若找到地名关键词
             taskarea = area
             exec(f'taskname = taskname_{area}', globals())  # 对应地名的数据赋值待用
@@ -109,7 +109,7 @@ def main_cycle_task_detect():
             exec(f'goodtask = goodtask_{area}', globals())
             break  # 找到则退出判断属地循环
     if taskname == []:  # 为空则说明判断属地失败
-        print('无法判断赏金所在属地（希图斯、福尔图娜、殁世幽都）')
+        print('无法判断任务所在属地（希图斯、福尔图娜、殁世幽都、双衍王境）')
         return  # 中止循环
     # 提取任务名,并判断任务链是否完美
     find_task_name()
@@ -117,15 +117,23 @@ def main_cycle_task_detect():
     time.sleep(JianGe)  # 等待JianGe秒
 
 
-# 主程序
-if __name__ == '__main__':
+# 初始化
+def init():
+    # 全局声明
+    global username, log_path, copy_path, target_string, \
+        taskname, tasknamecn, goodtask, \
+        taskname_Eidolon, tasknamecn_Eidolon, goodtask_Eidolon, \
+        taskname_Venus, tasknamecn_Venus, goodtask_Venus, \
+        taskname_InfestedMicroplanet, tasknamecn_InfestedMicroplanet, goodtask_InfestedMicroplanet, \
+        taskname_Duviri, tasknamecn_Duviri, goodtask_Duviri
     # 获取用户名
     username = os.environ["USERNAME"]
     # 日志路径、副本路径
     log_path = rf'C:\Users\{username}\AppData\Local\Warframe\EE.log'
     copy_path = rf'C:\Users\{username}\Documents\WFTaskLog.txt'
-    # 定位用字符串
-    target_string = r'Script [Info]: EidolonJobBoard.lua: Selected job with jobInfo:'
+    # 定位用字符串【平原赏金、双衍王境】
+    target_string = [r'Script [Info]: EidolonJobBoard.lua: Selected job with jobInfo:',
+                     r'Script [Info]: DuviriMissions.lua: Selected job with jobInfo:']
     # 任务英文、任务中文、完美任务英文 初始化
     taskname = []
     tasknamecn = []
@@ -175,14 +183,63 @@ if __name__ == '__main__':
     # 殁世幽都完美任务英文
     goodtask_InfestedMicroplanet = ['DynamicKeyPieces', 'DynamicCorpusSurvivors',
                                     'DynamicPurify', 'DynamicAssassinate']
+    # 双衍王境任务英文
+    taskname_Duviri = ['CaveCombatEncounterStory', 'DuviriShepherdingEncounterStory',
+                       'DynamicPortalEncounterExcavation', 'DuviriHiddenChestEncounterStory',
+                       'DynamicPortalEncounterVoidFlood', 'MountedDaxMinibossEncounterStory',
+                       'DynamicPortalEncounterExterminate', 'DuviriHorseTimeTrialEncounterStory',
+                       'DuviriPortalEncounterStory', 'DuviriCourierEncounterStory',
+                       'ShrineAssembleEncounterStory', 'MazePowerLockPuzzleEncounterStory',
+                       'DuviriDefendPrisonerCPEncounterStory', 'DynamicPortalEncounterAssassinationJackal',
+                       'CombatPatrolNoChestEncounterStory', 'DynamicPortalEncounterSurvival',
+                       'DuviriPowerGridEncounterStory', 'CombatPatrolChestEncounterStory',
+                       'DuviriTrappedChestEncounterStory', 'DynamicPortalEncounterDefense',
+                       'DuviriKullervoBossEncounterStory']
+    # 双衍王境任务中文
+    tasknamecn_Duviri = ['清除界影', '放牧塔塔羊',
+                         '地穴【挖掘】', '找到隐藏的宝箱',
+                         '地穴【虚空洪流】', '击杀骑兵禁卫',
+                         '地穴【歼灭】', '赢得绝灵骥比赛',
+                         '击杀禁卫并引导镜像', '找到丢失的随身物品',
+                         '重组圣坛（拾取碎片）', '通能圣坛（迷宫连线）',
+                         '营救囚犯', '地穴【刺杀】',
+                         '击杀禁卫', '地穴【生存】',
+                         '重连发电机', '打开镇守宝箱',
+                         '打开镇守宝箱（精英）', '地穴【防御】',
+                         '击败Kullervo']
+    # 双衍王境完美任务英文（暂不需要）
+    goodtask_Duviri = []
 
+
+# 主程序
+if __name__ == '__main__':
+    # 初始化
+    init()
+    # 任务检测模式
+    mode = ['【平原赏金】', '【双衍王境】']
+    print('WFTaskDetect V5.0 by bw0963')  # 标题 版本 署名
+    # 开机设定模式【平原赏金、双衍王境】
+    print('选择需要检测的任务类型：（输入数字按下回车）\n'
+          '若输入错误或留空则默认为【平原赏金】模式')
+    print('1 - 平原赏金')
+    print('2 - 双衍王境')
+    try:
+        ModeChoice = int(input())
+        if ModeChoice == 0:  # 输入0时指定为错误，以导向默认模式（不然减一后会倒序索引
+            raise IndexError
+        mode[ModeChoice - 1] = mode[ModeChoice - 1]  # 检测是否越界
+    except (ValueError, IndexError):
+        ModeChoice = 1  # 默认为【平原赏金】模式
     # 菜单循环
     while True:
         print("\033c", end="")  # 清屏
+        print('WFTaskDetect V5.0 by bw0963')  # 标题 版本 署名
+        print(f'当前模式：{mode[ModeChoice - 1]}')  # 索引从0开始，故减一
         print('选择程序运行方式：（输入数字按下回车）')
         print('1 - 运行一次')
         print('2 - 自动运行')
-        print('3 - 结束程序')
+        print('3 - 切换模式')
+        print('4 - 结束程序')
         JianGe = 0  # 间隔默认为0，除自动执行外，不需要停顿
         t = 1  # 次数默认为1(意义不大，就是定义一下)
         choice = input()
@@ -205,6 +262,11 @@ if __name__ == '__main__':
             while t > 0:
                 main_cycle_task_detect()
         elif choice == '3':
+            # 模式向下轮换。轮换到底部时再+1，会导致ModeChoice为0，故此时再加1
+            ModeChoice = ((ModeChoice + 1) % (len(mode) + 1)) + (ModeChoice + 1) // (len(mode) + 1)
+            # (ModeChoice + 1) // (len(mode) + 1)仅在加一后ModeChoice为0时，会等于1，其余为0，以此实现轮换
+            continue
+        elif choice == '4':
             break
         else:
             print('输入有误！3秒后重启')
