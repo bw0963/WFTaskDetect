@@ -10,7 +10,7 @@ def find_line_number(string):
     for i in range(len(lines) - 1, 0, -1):  # 倒序循环行
         if string in lines[i]:
             number = i + 1  # 定位用字符串所在行数
-            number += 2  # 加2以定位到任务链所在行
+            number += line_offset[ModeChoice - 1]  # 加定位字符串偏移量以定位到任务链所在行
             break  # 找到就跳出寻找循环
     if number == 0:
         print(f"未在文件中找到'{target_string[ModeChoice - 1]}'")
@@ -121,7 +121,7 @@ def main_cycle_task_detect():
 def init():
     # 全局声明
     global username, log_path, copy_path, target_string, \
-        taskname, tasknamecn, goodtask, \
+        line_offset, taskname, tasknamecn, goodtask, \
         taskname_Eidolon, tasknamecn_Eidolon, goodtask_Eidolon, \
         taskname_Venus, tasknamecn_Venus, goodtask_Venus, \
         taskname_InfestedMicroplanet, tasknamecn_InfestedMicroplanet, goodtask_InfestedMicroplanet, \
@@ -131,9 +131,13 @@ def init():
     # 日志路径、副本路径
     log_path = rf'C:\Users\{username}\AppData\Local\Warframe\EE.log'
     copy_path = rf'C:\Users\{username}\Documents\WFTaskLog.txt'
-    # 定位用字符串【平原赏金、双衍王境】
+    # 定位用字符串【平原赏金、双衍王境、客机模式】
     target_string = [r'Script [Info]: EidolonJobBoard.lua: Selected job with jobInfo:',
-                     r'Script [Info]: DuviriMissions.lua: Selected job with jobInfo:']
+                     r'Script [Info]: DuviriMissions.lua: Selected job with jobInfo:',
+                     r'Sys [Info]: Client loaded']
+    # 定位字符串偏移量（定位到任务名数据所在行，相对定位字符串的偏移量）
+    # 对应【平原赏金、双衍王境、客机模式】三模式
+    line_offset = [2, 2, 0]
     # 任务英文、任务中文、完美任务英文 初始化
     taskname = []
     tasknamecn = []
@@ -215,14 +219,16 @@ def init():
 if __name__ == '__main__':
     # 初始化
     init()
+    version = 'WFTaskDetect V5.1 by bw0963'  # 标题 版本 署名
     # 任务检测模式
-    mode = ['【平原赏金】', '【双衍王境】']
-    print('WFTaskDetect V5.0 by bw0963')  # 标题 版本 署名
-    # 开机设定模式【平原赏金、双衍王境】
+    mode = ['【平原赏金】', '【双衍王境】', '【客机模式】']
+    print(version)  # 标题 版本 署名
+    # 开机设定模式【平原赏金、双衍王境、客机模式】
     print('选择需要检测的任务类型：（输入数字按下回车）\n'
           '若输入错误或留空则默认为【平原赏金】模式')
     print('1 - 平原赏金')
     print('2 - 双衍王境')
+    print('3 - 客机模式')
     try:
         ModeChoice = int(input())
         if ModeChoice == 0:  # 输入0时指定为错误，以导向默认模式（不然减一后会倒序索引
@@ -233,7 +239,7 @@ if __name__ == '__main__':
     # 菜单循环
     while True:
         print("\033c", end="")  # 清屏
-        print('WFTaskDetect V5.0 by bw0963')  # 标题 版本 署名
+        print(version)  # 标题 版本 署名
         print(f'当前模式：{mode[ModeChoice - 1]}')  # 索引从0开始，故减一
         print('选择程序运行方式：（输入数字按下回车）')
         print('1 - 运行一次')
