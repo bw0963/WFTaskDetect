@@ -59,9 +59,11 @@ def find_task_name():
 
 def taskname_replace(content):
     # 待替换文本(希图斯：地下储藏箱；福尔图娜：摧毁无人机)
-    oldtasklist = ['HiddenResourceCachesCave', 'DynamicExterminateDrones']
+    oldtasklist = ['HiddenResourceCachesCave', 'DynamicExterminateDrones',
+                   'DynamicExterminateMoas', 'DynamicCachesAirDrop']
     # 替换后文本
-    newtasklist = ['HiddenCaveResourceCaches', 'DynamicDronesExterminate']
+    newtasklist = ['HiddenCaveResourceCaches', 'DynamicDronesExterminate',
+                   'DynamicMoasExterminate', 'DynamicAirDropCaches']
     for i in range(0, len(oldtasklist)):  # 循环依次替换
         content = content.replace(oldtasklist[i], newtasklist[i])
     return content
@@ -93,13 +95,16 @@ def main_cycle_task_detect():
     # 定位任务链行数
     line_number = find_line_number(target_string[ModeChoice - 1])
     if line_number == 0:
+        time.sleep(1)
         return  # 若无法找到行数则终止循环
     # 任务链所在行内容赋值给变量
     line_content = copy_line_to_variable(line_number)
     if line_content is None:
+        time.sleep(1)
         return  # 若无法找到任务链行内容则终止循环
     # 任务名替换以区分
     line_content = taskname_replace(line_content)
+    print(line_content)  ################################################################
     # 判断赏金所属地
     for area in ['Eidolon', 'Venus', 'InfestedMicroplanet', 'Duviri']:
         if line_content.find(area) != -1:  # 若找到地名关键词
@@ -159,21 +164,25 @@ def init():
                         'HiddenResourceCaches', 'DynamicAssassinate',
                         'DynamicCapture', 'DynamicRescue']
     # 福尔图娜任务英文（'DynamicExterminateDrones'替换为'DynamicDronesExterminate'以区分）
+    # （'DynamicExterminateMoas'替换为'DynamicMoasExterminate'以区分）
+    # （'DynamicCachesAirDrop'替换为'DynamicAirDropCaches'以区分）
     taskname_Venus = ['DynamicBaseSpy', 'DynamicAssassinate',
                       'DynamicDronesExterminate', 'DynamicExterminate',
                       'DynamicResourceCapture', 'DynamicExcavation',
                       'DynamicRecovery', 'DynamicAmbush',
-                      'DynamicDroneDefense', 'DynamicCachesAirDrop']
+                      'DynamicDroneDefense', 'DynamicAirDropCaches',
+                      'DynamicMoasExterminate', 'DynamicCaches']
     # 福尔图娜任务中文
     tasknamecn_Venus = ['间谍', '刺杀',
                         '摧毁无人机', '消灭一定数量的敌人',
                         '占领储藏箱', '挖掘',
                         '调查索拉里斯营地', '伏击线圈滚轮',
-                        '停用无人机', '寻找储藏箱']
-    # 福尔图娜完美任务英文（间谍、刺杀、摧毁无人机、寻找储藏箱、消灭一定数量的敌人）
+                        '停用无人机', '寻找空投储藏箱',
+                        '消灭一定数量的恐鸟', '寻找储藏箱（室内）']
+    # 福尔图娜完美任务英文（间谍、刺杀、摧毁无人机、寻找储藏箱、消灭一定数量的敌人、消灭一定数量的恐鸟）
     goodtask_Venus = ['DynamicBaseSpy', 'DynamicAssassinate',
                       'DynamicDronesExterminate', 'DynamicCachesAirDrop',
-                      'DynamicExterminate']
+                      'DynamicExterminate', 'DynamicMoasExterminate']
     # 殁世幽都任务英文
     taskname_InfestedMicroplanet = ['DynamicAssassinate', 'DynamicExterminate',
                                     'DynamicAreaDefense', 'DynamicPurify',
