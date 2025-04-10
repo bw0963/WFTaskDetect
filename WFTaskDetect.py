@@ -90,7 +90,7 @@ def main_cycle_task_detect():
             time.sleep(1)
         return  # 出错就退出循环
     # 读取文件
-    with open(copy_path, 'r', encoding='utf-8') as file:
+    with open(copy_path, 'r', encoding='utf-8', errors='ignore') as file:
         lines = file.readlines()  # 按行读取，存入列表
     # 定位任务链行数
     line_number = find_line_number(target_string[ModeChoice - 1])
